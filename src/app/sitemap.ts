@@ -11,34 +11,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 1,
     },
     {
-      url: `${baseUrl}/notices`,
+      url: `${baseUrl}/privacy-policy`,
       lastModified: new Date(),
-      changeFrequency: 'hourly',
-      priority: 0.9,
+      changeFrequency: 'monthly',
+      priority: 0.5,
     },
     {
-      url: `${baseUrl}/exam-notices`,
+      url: `${baseUrl}/terms-of-service`,
       lastModified: new Date(),
-      changeFrequency: 'hourly',
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/admission`,
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/honours-program`,
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/degree-program`,
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 0.7,
+      changeFrequency: 'monthly',
+      priority: 0.5,
     },
   ];
 }

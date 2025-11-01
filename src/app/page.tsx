@@ -311,15 +311,22 @@ export default function Home() {
         dangerouslySetInnerHTML={{
           __html: JSON.stringify({
             "@context": "https://schema.org",
-            "@type": "Organization",
+            "@type": "WebSite",
             "name": "NU Porikroma",
+            "alternateName": "National University Bangladesh Notice Portal",
             "url": "https://nu-porikroma.vercel.app/",
-            "logo": "https://nu-porikroma.vercel.app/logo.png",
-            "sameAs": [
-              "https://www.facebook.com/NU.Bangladesh",
-              "https://twitter.com/NU_Bangladesh",
-              "https://www.youtube.com/NU_Bangladesh"
-            ]
+            "description": "জাতীয় বিশ্ববিদ্যালয়ের পরীক্ষার নোটিশ, রেজাল্ট এবং সকল ধরনের একাডেমিক আপডেটস",
+            "inLanguage": ["en", "bn"],
+            "about": {
+              "@type": "Organization",
+              "name": "National University Bangladesh",
+              "url": "https://www.nu.ac.bd/"
+            },
+            "potentialAction": {
+              "@type": "SearchAction",
+              "target": "https://nu-porikroma.vercel.app/?search={search_term_string}",
+              "query-input": "required name=search_term_string"
+            }
           }),
         }}
       />
