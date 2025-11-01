@@ -12,7 +12,6 @@ import { toast } from 'sonner';
 import { ThemeToggle } from '@/components/theme-toggle';
 import AdBanner from '@/components/ads/AdBanner';
 import { AdSenseScript } from '@/components/ads/AdSense';
-import ImprovedPdfViewer from '@/components/improved-pdf-viewer';
 
 
 interface Notice {
@@ -46,7 +45,6 @@ export default function Home() {
     pages: 0
   });
   const [lastUpdated, setLastUpdated] = useState<string>('');
-  const [selectedPdf, setSelectedPdf] = useState<{ url: string; title: string } | null>(null);
 
   
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -138,9 +136,29 @@ export default function Home() {
 
   const handleViewPDF = async (pdfUrl: string, title: string) => {
     try {
-      // Set the PDF to be viewed in modal
-      setSelectedPdf({ url: pdfUrl, title });
-      toast.success('Opening PDF viewer');
+      // Create a new window/tab without affecting current page history
+      const newWindow = window.open('', '_blank', 'noopener,noreferrer');
+      
+      if (newWindow) {
+        // Set the URL in the new window without affecting current page
+        newWindow.location.href = pdfUrl;
+        toast.success('PDF opened in new tab');
+      } else {
+        // If popup is blocked, use a different approach
+        // Create a temporary link that opens in new tab
+        const tempLink = document.createElement('a');
+        tempLink.href = pdfUrl;
+        tempLink.target = '_blank';
+        tempLink.rel = 'noopener noreferrer';
+        tempLink.style.display = 'none';
+        
+        // Add to DOM, click, and remove immediately
+        document.body.appendChild(tempLink);
+        tempLink.click();
+        document.body.removeChild(tempLink);
+        
+        toast.success('PDF opened (please allow popups for better experience)');
+      }
     } catch (error) {
       console.error('Error opening PDF:', error);
       toast.error('Failed to open PDF');
@@ -820,15 +838,6 @@ export default function Home() {
           </div>
         </footer>
       </div>
-
-      {/* PDF Viewer Modal */}
-      {selectedPdf && (
-        <ImprovedPdfViewer
-          pdfUrl={selectedPdf.url}
-          title={selectedPdf.title}
-          onClose={() => setSelectedPdf(null)}
-        />
-      )}
     </>
   );
 }
