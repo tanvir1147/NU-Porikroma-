@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { scrapeNotices, NU_URLS } from '@/lib/scraper';
+import { db } from '@/lib/db';
 
 interface Notice {
   id: string;
@@ -12,53 +13,91 @@ interface Notice {
 
 export async function GET(request: NextRequest) {
   try {
-    console.log('🔄 Fetching notices from NU website...');
+    console.log('🔄 Fetching notices...');
     
-    // Use our improved scraper - only scrape recent news
-    const allNotices: Notice[] = [];
-    
+    // First, try to get notices from database
     try {
-      console.log('🔄 Scraping recent news from NU website...');
-      const notices = await scrapeNotices(NU_URLS.recent, 'Recent');
+      const dbNotices = await db.notice.findMany({
+        orderBy: { createdAt: 'desc' },
+        take: 50
+      });
       
-      // Convert to the expected format
-      const formattedNotices = notices.map((notice, index) => ({
-        id: `nu-${notice.no || index}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-        title: notice.title,
-        postDate: notice.postDate,
-        link: notice.link,
-        category: notice.category,
-        source: 'Recent News & Notice'
-      }));
-      
-      allNotices.push(...formattedNotices);
-      console.log(`✅ Processed ${formattedNotices.length} recent notices`);
-    } catch (error) {
-      console.error('❌ Error scraping recent news:', error);
+      if (dbNotices.length > 0) {
+        const formattedNotices = dbNotices.map((notice) => ({
+          id: notice.id,
+          title: notice.title,
+          postDate: notice.postDate,
+          link: notice.link,
+          category: notice.category,
+          course: notice.course,
+          year: notice.year
+        }));
+        
+        console.log(`✅ Retrieved ${formattedNotices.length} notices from database`);
+        return NextResponse.json({ notices: formattedNotices });
+      }
+    } catch (dbError) {
+      console.log('📝 Database not initialized, will scrape fresh data');
     }
     
-    // If we got notices, return them
-    if (allNotices.length > 0) {
-      console.log(`✅ Successfully fetched ${allNotices.length} notices`);
-      return NextResponse.json({ notices: allNotices });
+    // If no database notices, scrape from website
+    console.log('🔄 Scraping fresh notices from NU website...');
+    const notices = await scrapeNotices(NU_URLS.recent, 'Recent');
+    
+    if (notices && notices.length > 0) {
+      // Save to database and return
+      const savedNotices: Notice[] = [];
+      
+      for (const notice of notices.slice(0, 50)) {
+        try {
+          const saved = await db.notice.create({
+            data: {
+              no: notice.no || Math.floor(Math.random() * 10000),
+              title: notice.title,
+              link: notice.link,
+              postDate: notice.postDate,
+              category: notice.category || 'General',
+              course: notice.course || 'General',
+              year: notice.year || 'N/A'
+            }
+          });
+          
+          savedNotices.push({
+            id: saved.id,
+            title: saved.title,
+            postDate: saved.postDate,
+            link: saved.link,
+            category: saved.category,
+            course: saved.course,
+            year: saved.year
+          });
+        } catch (error) {
+          // Skip duplicates
+          console.log('Skipping duplicate notice');
+        }
+      }
+      
+      if (savedNotices.length > 0) {
+        console.log(`✅ Scraped and saved ${savedNotices.length} notices`);
+        return NextResponse.json({ notices: savedNotices });
+      }
     }
     
-    // If no notices were scraped, return empty array with message
-    console.log('⚠️ No October/November 2025 notices found on NU website');
+    // If still no notices, return empty with helpful message
+    console.log('⚠️ No notices found');
     return NextResponse.json({ 
       notices: [], 
-      message: 'No notices found for October and November 2025. The NU website may not have published any notices for these months yet.',
+      message: 'No notices found. The system will automatically check for new notices every 6 hours.',
       timestamp: new Date().toISOString()
     });
     
   } catch (error) {
     console.error('❌ Error fetching notices:', error);
     
-    // Return error message instead of fake data
     return NextResponse.json({ 
       notices: [], 
-      error: 'Failed to scrape notices from NU website',
-      message: 'There was an error accessing the NU website. Please try again later.',
+      error: 'Failed to fetch notices',
+      message: 'There was an error fetching notices. Please try again later.',
       timestamp: new Date().toISOString()
     }, { status: 500 });
   }
