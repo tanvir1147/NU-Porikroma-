@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { scrapeNotices, NU_URLS } from '@/lib/scraper';
-import { db } from '@/lib/db';
+import { getNoticesFromSupabase, formatSupabaseNotices } from '@/lib/supabase';
 
 interface Notice {
   id: string;
@@ -13,30 +12,26 @@ interface Notice {
 
 export async function GET(request: NextRequest) {
   try {
-    console.log('🔄 Fetching notices from NU website...');
+    console.log('🔄 Fetching notices from Supabase...');
     
-    // Scrape notices directly from NU website
-    const notices = await scrapeNotices(NU_URLS.recent, 'Recent');
+    // Get notices from your existing Supabase database
+    const supabaseNotices = await getNoticesFromSupabase(50);
     
-    if (notices && notices.length > 0) {
-      // Convert to the expected format
-      const formattedNotices = notices.map((notice, index) => ({
-        id: `nu-${notice.no || index}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-        title: notice.title,
-        postDate: notice.postDate,
-        link: notice.link,
-        category: notice.category || 'Recent',
-        course: notice.course || 'General',
-        year: notice.year || 'N/A'
-      }));
+    if (supabaseNotices && supabaseNotices.length > 0) {
+      // Format notices for the website
+      const formattedNotices = formatSupabaseNotices(supabaseNotices);
       
-      console.log(`✅ Successfully scraped ${formattedNotices.length} notices from NU website`);
-      return NextResponse.json({ notices: formattedNotices });
+      console.log(`✅ Successfully fetched ${formattedNotices.length} notices from Supabase`);
+      return NextResponse.json({ 
+        notices: formattedNotices,
+        source: 'Supabase Database',
+        timestamp: new Date().toISOString()
+      });
     }
     
-    // If no notices were scraped, return fallback notices for demo
-    console.log('⚠️ No notices found from scraping, returning demo notices');
-    const fallbackNotices = [
+    // If no notices in Supabase, return demo notices
+    console.log('⚠️ No notices found in Supabase, returning demo notices');
+    const demoNotices = [
       {
         id: 'demo-1',
         title: '২০২৪ সালের অনার্স ৩য় বর্ষ পরীক্ষার ফলাফল প্রকাশ',
@@ -85,15 +80,16 @@ export async function GET(request: NextRequest) {
     ];
     
     return NextResponse.json({ 
-      notices: fallbackNotices,
-      message: 'Demo notices displayed. Real notices will be available once the scraping system is fully operational.',
+      notices: demoNotices,
+      source: 'Demo Data',
+      message: 'Demo notices displayed. Connect to Supabase to show real notices.',
       timestamp: new Date().toISOString()
     });
     
   } catch (error) {
-    console.error('❌ Error fetching notices:', error);
+    console.error('❌ Error fetching notices from Supabase:', error);
     
-    // Return demo notices even on error
+    // Return demo notices on error
     const demoNotices = [
       {
         id: 'demo-1',
@@ -117,8 +113,9 @@ export async function GET(request: NextRequest) {
     
     return NextResponse.json({ 
       notices: demoNotices,
-      error: 'Scraping temporarily unavailable',
-      message: 'Demo notices displayed. System will automatically retry scraping.',
+      source: 'Demo Data (Error Fallback)',
+      error: 'Supabase connection failed',
+      message: 'Demo notices displayed. Please check Supabase configuration.',
       timestamp: new Date().toISOString()
     });
   }
