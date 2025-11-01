@@ -137,36 +137,29 @@ export default function Home() {
 
   const handleViewPDF = async (pdfUrl: string, title: string) => {
     try {
-      toast.info(`Opening PDF viewer: ${title.substring(0, 30)}...`);
+      toast.info(`Opening PDF: ${title.substring(0, 30)}...`);
       
-      // Create viewer URL with parameters
-      const viewerUrl = `/api/pdf/viewer?url=${encodeURIComponent(pdfUrl)}&title=${encodeURIComponent(title)}`;
+      // Simple direct PDF opening - works on all devices
+      const newWindow = window.open(pdfUrl, '_blank', 'noopener,noreferrer');
       
-      // Use window.open directly - more reliable than programmatic link clicks
-      const newWindow = window.open(viewerUrl, '_blank', 'noopener,noreferrer');
-      
-      // Check if the window was blocked
+      // Check if popup was blocked
       if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
-        // Popup was blocked, show instructions
-        toast.error('Popup blocked! Please allow popups for this site or try the direct link below.');
-        
-        // Fallback: show a modal with the link
-        const userWantsToTry = confirm(
-          `Your browser blocked the PDF viewer popup. Would you like to open it in the current tab instead?\n\n` +
-          `PDF: ${title.substring(0, 50)}${title.length > 50 ? '...' : ''}`
+        // Fallback: ask user to open directly
+        const userConfirm = confirm(
+          `Popup blocked! Click OK to open the PDF directly.\n\nPDF: ${title.substring(0, 50)}${title.length > 50 ? '...' : ''}`
         );
         
-        if (userWantsToTry) {
+        if (userConfirm) {
           // Open in current tab as fallback
-          window.location.href = viewerUrl;
+          window.open(pdfUrl, '_self');
         }
         return;
       }
       
-      toast.success('PDF viewer opened in new tab');
+      toast.success('PDF opened in new tab');
     } catch (error) {
-      console.error('Error opening PDF viewer:', error);
-      toast.error('Failed to open PDF viewer');
+      console.error('Error opening PDF:', error);
+      toast.error('Failed to open PDF');
     }
   };
 
@@ -174,26 +167,38 @@ export default function Home() {
     try {
       toast.info(`Downloading: ${title.substring(0, 30)}...`);
       
-      const response = await fetch(`/api/pdf/download?url=${encodeURIComponent(pdfUrl)}&title=${encodeURIComponent(title)}`);
+      // Use the download API for better compatibility
+      const downloadUrl = `/api/pdf/download?url=${encodeURIComponent(pdfUrl)}`;
       
-      if (response.ok) {
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
+      // Create download link
+      const a = document.createElement('a');
+      a.href = downloadUrl;
+      a.download = `${title.substring(0, 50).replace(/[^a-zA-Z0-9\u0980-\u09FF\s]/g, '') || 'NU_Notice'}.pdf`;
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+      
+      // Add to DOM, click, and remove
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      
+      toast.success('PDF download started');
+    } catch (error) {
+      console.error('Error downloading PDF:', error);
+      
+      // Fallback: direct link
+      try {
         const a = document.createElement('a');
-        a.href = url;
-        a.download = `${title.substring(0, 50)}.pdf`;
+        a.href = pdfUrl;
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
-        
-        toast.success('PDF downloaded successfully');
-      } else {
+        toast.info('Opening PDF directly (fallback)');
+      } catch (fallbackError) {
         toast.error('Failed to download PDF');
       }
-    } catch (error) {
-      console.error('Error downloading PDF:', error);
-      toast.error('Failed to download PDF');
     }
   };
 
@@ -659,15 +664,15 @@ export default function Home() {
                             </Button>
                           </div>
                           
-                          {/* Fallback direct link for popup-blocked browsers */}
+                          {/* Direct PDF link for mobile users */}
                           <div className="text-center">
                             <a 
-                              href={`/api/pdf/viewer?url=${encodeURIComponent(notice.link)}&title=${encodeURIComponent(notice.title)}`}
+                              href={notice.link}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="text-xs sm:text-sm text-cyan-400 hover:text-cyan-300 underline opacity-70"
                             >
-                              Direct link
+                              Open PDF directly
                             </a>
                           </div>
                         </div>

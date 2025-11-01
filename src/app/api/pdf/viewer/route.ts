@@ -26,70 +26,65 @@ export async function GET(request: NextRequest) {
     // Allow PDF files from nu.ac.bd domain, but also allow other domains with warning
     const isNuDomain = url.hostname.includes('nu.ac.bd');
     
-    // Create simple HTML page with multiple PDF viewing options
+    // Create simple mobile-friendly PDF viewer
     const html = `
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDF Viewer - ${title || 'Document'}</title>
+    <title>PDF - ${title || 'NU Notice'}</title>
     <style>
         body {
             margin: 0;
-            padding: 20px;
+            padding: 10px;
             font-family: Arial, sans-serif;
             background: linear-gradient(135deg, #1e3c72, #2a5298);
             color: white;
             min-height: 100vh;
         }
         .container {
-            max-width: 1000px;
+            max-width: 100%;
             margin: 0 auto;
         }
         .header {
             background: rgba(255, 255, 255, 0.1);
-            padding: 20px;
+            padding: 15px;
             border-radius: 10px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             text-align: center;
         }
         .title {
-            font-size: 28px;
+            font-size: 20px;
             font-weight: bold;
             margin: 0 0 10px 0;
             text-shadow: 0 0 10px #00E0FF;
-            font-family: 'Poppins', sans-serif;
-            letter-spacing: 0.5px;
         }
         .subtitle {
-            font-size: 16px;
+            font-size: 14px;
             opacity: 0.8;
-            margin: 0 0 20px 0;
-        }
-        .warning {
-            background: rgba(255, 165, 0, 0.2);
-            border: 1px solid rgba(255, 165, 0, 0.5);
-            padding: 10px;
-            border-radius: 5px;
-            margin: 10px 0;
+            margin: 0 0 15px 0;
+            word-break: break-word;
         }
         .buttons {
             display: flex;
             justify-content: center;
-            gap: 15px;
+            gap: 10px;
             flex-wrap: wrap;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
         .btn {
             background: rgba(255, 255, 255, 0.2);
             color: white;
-            padding: 15px 25px;
+            padding: 12px 20px;
             border-radius: 8px;
             text-decoration: none;
             font-weight: bold;
             transition: all 0.3s ease;
             border: 2px solid rgba(255, 255, 255, 0.3);
+            font-size: 14px;
+            text-align: center;
+            min-width: 120px;
         }
         .btn:hover {
             background: rgba(255, 255, 255, 0.3);
@@ -101,14 +96,6 @@ export async function GET(request: NextRequest) {
         }
         .btn-primary:hover {
             background: #218838;
-        }
-        .btn-warning {
-            background: #ffc107;
-            border-color: #ffc107;
-            color: #000;
-        }
-        .btn-warning:hover {
-            background: #e0a800;
         }
         .viewer-container {
             background: white;
@@ -123,163 +110,96 @@ export async function GET(request: NextRequest) {
             border: none;
             border-radius: 10px;
         }
-        .info {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 20px;
-            border-radius: 10px;
-            margin-top: 20px;
+        .message {
+            padding: 30px 20px;
+            text-align: center;
+            color: #333;
         }
-        .info h3 {
+        .message h3 {
             margin-top: 0;
+            color: #333;
         }
-        .info-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 15px;
-            margin-top: 15px;
-        }
-        .info-card {
-            background: rgba(255, 255, 255, 0.1);
+        .instructions {
+            background: #f8f9fa;
             padding: 15px;
             border-radius: 8px;
+            margin: 15px 0;
+            text-align: left;
+            color: #333;
+        }
+        .instructions ol {
+            margin: 10px 0;
+            padding-left: 20px;
         }
         @media (max-width: 768px) {
-            .viewer-container {
-                height: 60vh;
+            body { padding: 5px; }
+            .header { padding: 10px; }
+            .title { font-size: 18px; }
+            .subtitle { font-size: 12px; }
+            .btn { 
+                padding: 10px 15px; 
+                font-size: 12px;
+                min-width: 100px;
             }
-            .buttons {
-                flex-direction: column;
-                align-items: center;
-            }
-            .btn {
-                width: 200px;
-                text-align: center;
-            }
+            .viewer-container { height: 60vh; }
+            .message { padding: 20px 15px; }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <div style="display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 20px;">
-                <div style="width: 60px; height: 60px;">
-                    <img src="/logo.png" alt="NU Porikroma" style="width: 100%; height: 100%; object-fit: contain; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.4); border: 2px solid rgba(255,255,255,0.2);" />
-                </div>
-                <div>
-                    <h1 class="title">📄 NU Porikroma PDF Viewer</h1>
-                    <p class="subtitle">${title || 'National University Bangladesh Document'}</p>
-                    ${!isNuDomain ? '<div class="warning">⚠️ This PDF is from an external domain. Please verify the source before viewing.</div>' : ''}
-                </div>
-            </div>
+            <h1 class="title">📄 NU PDF Viewer</h1>
+            <p class="subtitle">${title || 'National University Document'}</p>
             <div class="buttons">
-                <a href="${pdfUrl}" target="_blank" class="btn">📖 Open Direct</a>
-                <a href="https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(pdfUrl)}" target="_blank" class="btn">🔍 Google Docs</a>
-                <a href="https://mozilla.github.io/pdf.js/web/viewer.html?file=${encodeURIComponent(pdfUrl)}" target="_blank" class="btn">📄 PDF.js Viewer</a>
+                <a href="${pdfUrl}" target="_blank" class="btn">📖 Open PDF</a>
                 <a href="/api/pdf/download?url=${encodeURIComponent(pdfUrl)}" class="btn btn-primary">⬇️ Download</a>
-                ${!isNuDomain ? `<a href="#" onclick="alert('This PDF is from an external domain: ${url.hostname}. Please verify the source before opening.'); return false;" class="btn btn-warning">⚠️ Security Info</a>` : ''}
             </div>
         </div>
 
         <div class="viewer-container">
-            <div id="loading-message" style="padding: 40px; text-align: center; color: #333;">
+            <div id="loading-message" class="message">
                 <h3>🔄 Loading PDF...</h3>
-                <p>Attempting to load the PDF document. If this takes too long, try the alternative options above.</p>
+                <p>Please wait while we load the document...</p>
             </div>
             <iframe src="${pdfUrl}" class="iframe" style="display: none;"
-                    onerror="handleIframeError()" 
-                    onload="handleIframeLoad()"></iframe>
-            <div id="error-message" style="display: none; padding: 40px; text-align: center; color: #333;">
-                <h3>⚠️ PDF Access Restricted</h3>
-                <p>The PDF cannot be displayed directly due to server restrictions. This is common with NU website PDFs.</p>
-                <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: left;">
-                    <h4>🔧 How to view this PDF:</h4>
-                    <ol style="margin: 10px 0;">
-                        <li><strong>📖 Open Direct:</strong> Click to open in a new tab (may work in some browsers)</li>
-                        <li><strong>🔍 Google Docs:</strong> Use Google's PDF viewer (most reliable)</li>
-                        <li><strong>📄 PDF.js Viewer:</strong> Use Mozilla's PDF viewer</li>
-                        <li><strong>⬇️ Download:</strong> Save to your device and open with a PDF reader</li>
+                    onerror="showError()" 
+                    onload="showPDF()"></iframe>
+            <div id="error-message" class="message" style="display: none;">
+                <h3>📱 Mobile PDF Viewer</h3>
+                <p>For the best mobile experience, we recommend:</p>
+                <div class="instructions">
+                    <ol>
+                        <li><strong>📖 Open PDF:</strong> Tap to open in your browser's PDF viewer</li>
+                        <li><strong>⬇️ Download:</strong> Save to your device and open with a PDF app</li>
                     </ol>
                 </div>
-                <p><strong>We recommend trying the Google Docs viewer first.</strong></p>
+                <p><strong>Most mobile browsers handle PDFs automatically.</strong></p>
             </div>
         </div>
         
         <script>
-            let iframeLoaded = false;
-            let errorShown = false;
+            let loaded = false;
             
-            function handleIframeLoad() {
-                iframeLoaded = true;
-                console.log('PDF iframe loaded successfully');
+            function showPDF() {
+                loaded = true;
                 document.getElementById('loading-message').style.display = 'none';
                 document.querySelector('.iframe').style.display = 'block';
             }
             
-            function handleIframeError() {
-                if (!errorShown) {
-                    showError();
-                }
-            }
-            
             function showError() {
-                errorShown = true;
                 document.getElementById('loading-message').style.display = 'none';
                 document.querySelector('.iframe').style.display = 'none';
                 document.getElementById('error-message').style.display = 'block';
             }
             
-            // Check if iframe loaded after 3 seconds (shorter timeout for better UX)
+            // Auto-show error message after 2 seconds if not loaded (mobile-friendly)
             setTimeout(() => {
-                if (!iframeLoaded && !errorShown) {
-                    console.log('PDF iframe failed to load within 3 seconds - likely blocked by server');
+                if (!loaded) {
                     showError();
                 }
-            }, 3000);
-            
-            // Also check after 1 second for immediate failures
-            setTimeout(() => {
-                try {
-                    const iframe = document.querySelector('.iframe');
-                    if (iframe && !iframeLoaded) {
-                        // Try to access iframe content to detect cross-origin issues
-                        try {
-                            const doc = iframe.contentDocument;
-                            if (doc && doc.body && doc.body.innerHTML.includes('403') || doc.body.innerHTML.includes('Forbidden')) {
-                                console.log('PDF access forbidden (403)');
-                                showError();
-                            }
-                        } catch (e) {
-                            // Cross-origin restrictions - this is expected for external PDFs
-                            console.log('Cross-origin iframe detected');
-                        }
-                    }
-                } catch (e) {
-                    console.log('Error checking iframe content:', e);
-                }
-            }, 1000);
+            }, 2000);
         </script>
-
-        <div class="info">
-            <h3>📋 Viewing Options</h3>
-            <div class="info-grid">
-                <div class="info-card">
-                    <h4>📖 Direct View</h4>
-                    <p>Open PDF directly in your browser. Best for modern browsers.</p>
-                </div>
-                <div class="info-card">
-                    <h4>🔍 Google Docs</h4>
-                    <p>Use Google Docs viewer. Works with most file types.</p>
-                </div>
-                <div class="info-card">
-                    <h4>📄 PDF.js Viewer</h4>
-                    <p>Mozilla's PDF.js viewer. Reliable for PDF files.</p>
-                </div>
-                <div class="info-card">
-                    <h4>⬇️ Download</h4>
-                    <p>Save PDF to your device for offline viewing.</p>
-                </div>
-            </div>
-        </div>
     </div>
 </body>
 </html>
