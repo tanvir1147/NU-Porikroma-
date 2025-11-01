@@ -34,7 +34,6 @@ export async function getNoticesFromSupabase(limit: number = 50) {
     const { data, error } = await supabase
       .from('notices')
       .select('*')
-      .eq('is_active', true) // Only get active notices
       .order('created_at', { ascending: false })
       .limit(limit)
 
