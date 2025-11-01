@@ -1,0 +1,28 @@
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Twitterbot
+Allow: /
+
+User-agent: facebookexternalhit
+Allow: /
+
+User-agent: *
+Allow: /
+
+Sitemap: https://nu-porikroma.vercel.app/sitemap.xml
+
+# SEO directives
+Disallow: /api/
+Disallow: /_next/
+Disallow: /private/
+
+Sitemap: https://nu-porikroma.vercel.app/sitemap.xml
+
+# SEO directives
+Disallow: /api/
+Disallow: /_next/
+Disallow: /private/
