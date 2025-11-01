@@ -12,6 +12,7 @@ import { toast } from 'sonner';
 import { ThemeToggle } from '@/components/theme-toggle';
 import AdBanner from '@/components/ads/AdBanner';
 import { AdSenseScript } from '@/components/ads/AdSense';
+import ImprovedPdfViewer from '@/components/improved-pdf-viewer';
 
 
 interface Notice {
@@ -45,7 +46,7 @@ export default function Home() {
     pages: 0
   });
   const [lastUpdated, setLastUpdated] = useState<string>('');
-
+  const [selectedPdf, setSelectedPdf] = useState<{ url: string; title: string } | null>(null);
 
   
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -137,20 +138,9 @@ export default function Home() {
 
   const handleViewPDF = async (pdfUrl: string, title: string) => {
     try {
-      // Instant PDF opening - no loading, no intermediate page
-      const newWindow = window.open(pdfUrl, '_blank', 'noopener,noreferrer');
-      
-      // Check if popup was blocked
-      if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
-        // Fallback: open in current tab
-        window.location.href = pdfUrl;
-        return;
-      }
-      
-      // Show success message only after opening
-      setTimeout(() => {
-        toast.success('PDF opened successfully');
-      }, 100);
+      // Set the PDF to be viewed in modal
+      setSelectedPdf({ url: pdfUrl, title });
+      toast.success('Opening PDF viewer');
     } catch (error) {
       console.error('Error opening PDF:', error);
       toast.error('Failed to open PDF');
@@ -830,6 +820,15 @@ export default function Home() {
           </div>
         </footer>
       </div>
+
+      {/* PDF Viewer Modal */}
+      {selectedPdf && (
+        <ImprovedPdfViewer
+          pdfUrl={selectedPdf.url}
+          title={selectedPdf.title}
+          onClose={() => setSelectedPdf(null)}
+        />
+      )}
     </>
   );
 }
