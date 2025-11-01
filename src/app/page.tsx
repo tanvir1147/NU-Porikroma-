@@ -499,12 +499,12 @@ export default function Home() {
         {/* Main Content */}
         <main className="pt-24 pb-16 relative z-10">
           {/* Header Section */}
-          <header className="text-center mb-12 animate-slide-up pt-4">
+          <header className="text-center mb-8 sm:mb-12 animate-slide-up pt-4">
             <div className="w-full px-4">
-              <h1 className="text-4xl md:text-6xl font-bold text-white mb-4 text-glow-cyan">
+              <h1 className="text-2xl sm:text-4xl md:text-6xl font-bold text-white mb-3 sm:mb-4 text-glow-cyan">
                 {getProgramTitle()}
               </h1>
-              <p className="text-white/80 text-lg">
+              <p className="text-white/80 text-sm sm:text-base md:text-lg px-2">
                 {getProgramDescription()}
               </p>
               <div className="mt-6 flex items-center justify-center space-x-4">
@@ -518,16 +518,16 @@ export default function Home() {
           </header>
 
           {/* Animated Description Section */}
-          <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 mb-8">
-            <div className="bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 p-8 shadow-2xl overflow-hidden relative">
+          <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 mb-6 sm:mb-8">
+            <div className="bg-white/10 backdrop-blur-md rounded-xl sm:rounded-2xl border border-white/20 p-4 sm:p-6 md:p-8 shadow-2xl overflow-hidden relative">
               {/* Background Animation */}
               <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/10 via-blue-500/10 to-purple-500/10 animate-pulse"></div>
               
               {/* Main Content */}
               <div className="relative z-10 text-center">
                 <div className="animate-slide-up">
-                  <div className="bg-black/20 backdrop-blur-sm rounded-2xl p-6 mb-4">
-                    <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold bengali-text text-white text-readable-glow leading-relaxed tracking-wide">
+                  <div className="bg-black/20 backdrop-blur-sm rounded-xl sm:rounded-2xl p-3 sm:p-4 md:p-6 mb-3 sm:mb-4">
+                    <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-bold bengali-text text-white text-readable-glow leading-tight sm:leading-relaxed tracking-wide">
                       জাতীয় বিশ্ববিদ্যালয়ের পরীক্ষার নোটিশ, রেজাল্ট এবং সকল ধরনের একাডেমিক আপডেটস
                     </h2>
                   </div>
@@ -566,70 +566,96 @@ export default function Home() {
           {/* Notices Grid */}
           <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16">
             {loading ? (
-              <div className="flex flex-col items-center justify-center py-16">
-                <RefreshCw className="h-12 w-12 animate-spin text-cyan-400 mb-4" />
-                <p className="text-white/80">Loading notices from National University...</p>
+              <div className="space-y-4">
+                {/* Loading Skeleton */}
+                {[...Array(6)].map((_, i) => (
+                  <div key={i} className="bg-white/10 backdrop-blur-md rounded-xl border border-white/20 p-4 animate-pulse">
+                    <div className="flex justify-between items-start mb-3">
+                      <div className="space-y-2 flex-1">
+                        <div className="h-4 bg-white/20 rounded w-3/4"></div>
+                        <div className="h-3 bg-white/20 rounded w-1/2"></div>
+                      </div>
+                      <div className="w-6 h-6 bg-white/20 rounded"></div>
+                    </div>
+                    <div className="flex space-x-2 mb-3">
+                      <div className="h-6 bg-cyan-900/30 rounded-full w-16"></div>
+                      <div className="h-6 bg-blue-900/30 rounded-full w-20"></div>
+                    </div>
+                    <div className="flex space-x-2">
+                      <div className="h-8 bg-cyan-600/30 rounded flex-1"></div>
+                      <div className="h-8 bg-white/20 rounded flex-1"></div>
+                    </div>
+                  </div>
+                ))}
+                <div className="text-center py-4">
+                  <RefreshCw className="h-8 w-8 animate-spin text-cyan-400 mx-auto mb-2" />
+                  <p className="text-white/80 text-sm">Loading notices...</p>
+                </div>
               </div>
             ) : (
               <>
                 {/* Summary Section */}
-                <div className="mb-6 text-center">
-                  <div className="bg-white/10 backdrop-blur-md rounded-xl border border-white/20 p-4 inline-block">
-                    <p className="text-white/80 text-sm">
+                <div className="mb-4 sm:mb-6 text-center">
+                  <div className="bg-white/10 backdrop-blur-md rounded-lg sm:rounded-xl border border-white/20 p-3 sm:p-4 inline-block">
+                    <p className="text-white/80 text-xs sm:text-sm">
                       Showing <span className="text-cyan-400 font-semibold">{Math.min(pagination.page * pagination.limit, filteredNotices.length)}</span> of <span className="text-cyan-400 font-semibold">{filteredNotices.length}</span> notices
                       {selectedProgram !== 'recent-news' && (
-                        <span className="text-white/60"> • Filtered by {selectedProgram === 'honours' ? 'Honours Program' : 'Degree Program'}</span>
+                        <span className="text-white/60 hidden sm:inline"> • Filtered by {selectedProgram === 'honours' ? 'Honours Program' : 'Degree Program'}</span>
                       )}
                     </p>
                   </div>
                 </div>
 
-                <div className="grid gap-8 justify-center" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 550px))' }}>
+                <div className="grid gap-4 sm:gap-6 justify-center" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(min(320px, 100%), 450px))' }}>
                   {filteredNotices.slice((pagination.page - 1) * pagination.limit, pagination.page * pagination.limit).map((notice, index) => (
-                    <Card key={notice.id} className="bg-white/10 backdrop-blur-md border-white/20 hover:bg-white/15 transition-all duration-300 hover:shadow-xl hover:shadow-cyan-500/20 hover:scale-105 group h-full flex flex-col animate-slide-up min-w-[400px] p-2" style={{ animationDelay: `${index * 50}ms` }}>
-                      <CardHeader className="pb-5">
-                        <div className="flex items-start justify-between gap-4">
-                          <CardTitle className="text-white text-lg md:text-xl font-semibold group-hover:text-cyan-300 transition-colors duration-300 line-clamp-4 leading-relaxed">
-                            {notice.title.substring(0, 120)}{notice.title.length > 120 ? '...' : ''}
+                    <Card key={notice.id} className="bg-white/10 backdrop-blur-md border-white/20 hover:bg-white/15 transition-all duration-300 hover:shadow-xl hover:shadow-cyan-500/20 sm:hover:scale-105 group h-full flex flex-col animate-slide-up w-full max-w-[450px] p-1 sm:p-2" style={{ animationDelay: `${index * 50}ms` }}>
+                      <CardHeader className="pb-3 sm:pb-4 px-3 sm:px-6 pt-3 sm:pt-6">
+                        <div className="flex items-start justify-between gap-2 sm:gap-3">
+                          <CardTitle className="text-white text-sm sm:text-base md:text-lg font-medium sm:font-semibold group-hover:text-cyan-300 transition-colors duration-300 line-clamp-3 sm:line-clamp-4 leading-tight sm:leading-relaxed">
+                            {notice.title.substring(0, 100)}{notice.title.length > 100 ? '...' : ''}
                           </CardTitle>
-                          <div className="flex-shrink-0 text-cyan-400 mt-1">
-                            {getProgramIcon()}
+                          <div className="flex-shrink-0 text-cyan-400 mt-0.5">
+                            <div className="w-4 h-4 sm:w-5 sm:h-5">
+                              {getProgramIcon()}
+                            </div>
                           </div>
                         </div>
-                        <CardDescription className="text-white/70 flex items-center text-base mt-4">
-                          <Calendar className="w-5 h-5 mr-2" />
+                        <CardDescription className="text-white/70 flex items-center text-xs sm:text-sm mt-2 sm:mt-3">
+                          <Calendar className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
                           {notice.postDate}
                         </CardDescription>
                       </CardHeader>
-                      <CardContent className="pt-0 flex-1 flex flex-col justify-between px-6 pb-6">
-                        <div className="flex flex-wrap gap-3 mb-5">
-                          <span className="inline-flex items-center px-4 py-2 rounded-full text-base font-medium bg-cyan-900/50 text-cyan-300">
+                      <CardContent className="pt-0 flex-1 flex flex-col justify-between px-3 sm:px-6 pb-3 sm:pb-6">
+                        <div className="flex flex-wrap gap-1 sm:gap-2 mb-3 sm:mb-4">
+                          <span className="inline-flex items-center px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium bg-cyan-900/50 text-cyan-300">
                             {notice.category}
                           </span>
                           {notice.course && (
-                            <span className="inline-flex items-center px-4 py-2 rounded-full text-base font-medium bg-blue-900/50 text-blue-300">
+                            <span className="inline-flex items-center px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium bg-blue-900/50 text-blue-300">
                               {notice.course}
                             </span>
                           )}
                         </div>
-                        <div className="space-y-4 mt-auto">
-                          <div className="flex space-x-4">
+                        <div className="space-y-2 sm:space-y-3 mt-auto">
+                          <div className="flex space-x-2 sm:space-x-3">
                             <Button 
-                              size="lg" 
+                              size="sm"
                               onClick={() => handleViewPDF(notice.link, notice.title)}
-                              className="flex-1 bg-gradient-to-r from-cyan-600 to-cyan-700 hover:from-cyan-700 hover:to-cyan-800 text-white shadow-md hover:shadow-cyan-500/30 text-base py-3"
+                              className="flex-1 bg-gradient-to-r from-cyan-600 to-cyan-700 hover:from-cyan-700 hover:to-cyan-800 text-white shadow-md hover:shadow-cyan-500/30 text-xs sm:text-sm py-2 sm:py-2.5"
                             >
-                              <Eye className="w-5 h-5 mr-2" />
-                              View PDF
+                              <Eye className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                              <span className="hidden xs:inline">View PDF</span>
+                              <span className="xs:hidden">View</span>
                             </Button>
                             <Button 
-                              size="lg" 
+                              size="sm"
                               variant="outline"
                               onClick={() => handleDownloadPDF(notice.link, notice.title)}
-                              className="flex-1 border-cyan-500 text-cyan-300 hover:bg-cyan-500/20 text-base py-3"
+                              className="flex-1 border-cyan-500 text-cyan-300 hover:bg-cyan-500/20 text-xs sm:text-sm py-2 sm:py-2.5"
                             >
-                              <Download className="w-5 h-5 mr-2" />
-                              Download
+                              <Download className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                              <span className="hidden xs:inline">Download</span>
+                              <span className="xs:hidden">PDF</span>
                             </Button>
                           </div>
                           
@@ -639,9 +665,9 @@ export default function Home() {
                               href={`/api/pdf/viewer?url=${encodeURIComponent(notice.link)}&title=${encodeURIComponent(notice.title)}`}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-base text-cyan-400 hover:text-cyan-300 underline opacity-80"
+                              className="text-xs sm:text-sm text-cyan-400 hover:text-cyan-300 underline opacity-70"
                             >
-                              Direct viewer link
+                              Direct link
                             </a>
                           </div>
                         </div>

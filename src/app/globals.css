@@ -334,6 +334,21 @@ body {
   overflow: hidden;
 }
 
+/* Mobile optimization */
+@media (max-width: 480px) {
+  .xs\:hidden {
+    display: none;
+  }
+  
+  .xs\:inline {
+    display: inline;
+  }
+  
+  .text-responsive {
+    font-size: clamp(0.875rem, 2.5vw, 1rem);
+  }
+}
+
 /* Ultra-wide screen support */
 @media (min-width: 1920px) {
   .grid-cols-7 {
