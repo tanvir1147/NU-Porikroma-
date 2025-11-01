@@ -29,6 +29,8 @@ export interface SupabaseNotice {
 // Helper function to get notices from Supabase
 export async function getNoticesFromSupabase(limit: number = 50) {
   try {
+    console.log('🔍 Attempting to fetch notices from Supabase...');
+    
     const { data, error } = await supabase
       .from('notices')
       .select('*')
@@ -37,13 +39,14 @@ export async function getNoticesFromSupabase(limit: number = 50) {
       .limit(limit)
 
     if (error) {
-      console.error('Supabase error:', error)
+      console.error('❌ Supabase error:', error)
       return []
     }
 
+    console.log(`✅ Fetched ${data?.length || 0} notices from Supabase`);
     return data || []
   } catch (error) {
-    console.error('Error fetching from Supabase:', error)
+    console.error('❌ Error fetching from Supabase:', error)
     return []
   }
 }
