@@ -137,26 +137,20 @@ export default function Home() {
 
   const handleViewPDF = async (pdfUrl: string, title: string) => {
     try {
-      toast.info(`Opening PDF: ${title.substring(0, 30)}...`);
-      
-      // Simple direct PDF opening - works on all devices
+      // Instant PDF opening - no loading, no intermediate page
       const newWindow = window.open(pdfUrl, '_blank', 'noopener,noreferrer');
       
       // Check if popup was blocked
       if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
-        // Fallback: ask user to open directly
-        const userConfirm = confirm(
-          `Popup blocked! Click OK to open the PDF directly.\n\nPDF: ${title.substring(0, 50)}${title.length > 50 ? '...' : ''}`
-        );
-        
-        if (userConfirm) {
-          // Open in current tab as fallback
-          window.open(pdfUrl, '_self');
-        }
+        // Fallback: open in current tab
+        window.location.href = pdfUrl;
         return;
       }
       
-      toast.success('PDF opened in new tab');
+      // Show success message only after opening
+      setTimeout(() => {
+        toast.success('PDF opened successfully');
+      }, 100);
     } catch (error) {
       console.error('Error opening PDF:', error);
       toast.error('Failed to open PDF');
@@ -363,15 +357,15 @@ export default function Home() {
         <nav className="fixed top-0 left-0 right-0 z-50 bg-white/10 backdrop-blur-md border-b border-white/20">
           <div className="container mx-auto px-4 py-3">
             <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-4">
-                <div className="relative w-16 h-16 flex-shrink-0 flex items-center justify-center overflow-hidden">
+              <div className="flex items-center space-x-2 sm:space-x-4">
+                <div className="relative w-12 h-12 sm:w-16 sm:h-16 flex-shrink-0 flex items-center justify-center overflow-hidden">
                   <img
                     src="/logo.png"
                     alt="NU Porikroma"
-                    className="w-full h-full object-cover rounded-xl shadow-2xl ring-2 ring-white/20"
+                    className="w-full h-full object-cover rounded-lg sm:rounded-xl shadow-2xl ring-2 ring-white/20"
                   />
                 </div>
-                <h1 className="text-2xl font-bold text-white hidden sm:block tracking-wide" style={{ 
+                <h1 className="text-base sm:text-2xl font-bold text-white tracking-wide" style={{ 
                   textShadow: '0 0 10px #00E0FF',
                   fontFamily: 'var(--font-poppins)',
                   letterSpacing: '0.5px'
@@ -649,8 +643,8 @@ export default function Home() {
                               className="flex-1 bg-gradient-to-r from-cyan-600 to-cyan-700 hover:from-cyan-700 hover:to-cyan-800 text-white shadow-md hover:shadow-cyan-500/30 text-xs sm:text-sm py-2 sm:py-2.5"
                             >
                               <Eye className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                              <span className="hidden xs:inline">View PDF</span>
-                              <span className="xs:hidden">View</span>
+                              <span className="hidden sm:inline">View PDF</span>
+                              <span className="sm:hidden">View</span>
                             </Button>
                             <Button 
                               size="sm"
@@ -659,8 +653,8 @@ export default function Home() {
                               className="flex-1 border-cyan-500 text-cyan-300 hover:bg-cyan-500/20 text-xs sm:text-sm py-2 sm:py-2.5"
                             >
                               <Download className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                              <span className="hidden xs:inline">Download</span>
-                              <span className="xs:hidden">PDF</span>
+                              <span className="hidden sm:inline">Download</span>
+                              <span className="sm:hidden">Save</span>
                             </Button>
                           </div>
                           

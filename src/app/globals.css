@@ -335,17 +335,23 @@ body {
 }
 
 /* Mobile optimization */
-@media (max-width: 480px) {
-  .xs\:hidden {
-    display: none;
+@media (max-width: 640px) {
+  .sm\:hidden {
+    display: none !important;
   }
   
-  .xs\:inline {
-    display: inline;
+  .sm\:inline {
+    display: inline !important;
   }
   
   .text-responsive {
     font-size: clamp(0.875rem, 2.5vw, 1rem);
+  }
+  
+  /* Ensure NU Porikroma text is always visible */
+  .mobile-title {
+    display: block !important;
+    font-size: 1rem !important;
   }
 }
 
