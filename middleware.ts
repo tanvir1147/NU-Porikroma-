@@ -4,6 +4,11 @@ import type { NextRequest } from 'next/server'
 export function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
   
+  // Skip middleware for sitemap and robots - let them pass through directly
+  if (pathname === '/sitemap.xml' || pathname === '/robots.txt') {
+    return NextResponse.next();
+  }
+  
   // Log requests to logo.png for debugging (only in development)
   if (pathname === '/logo.png' && process.env.NODE_ENV === 'development') {
     console.log('Logo.png request:', {
@@ -30,8 +35,6 @@ export function middleware(request: NextRequest) {
     pathname.endsWith('.woff') ||
     pathname.endsWith('.woff2') ||
     pathname.endsWith('.ttf') ||
-    pathname === '/robots.txt' ||
-    pathname === '/sitemap.xml' ||
     pathname === '/manifest.json'
   ) {
     // Explicitly set cache headers for static assets
