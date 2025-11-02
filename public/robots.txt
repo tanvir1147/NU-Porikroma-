@@ -13,16 +13,10 @@ Allow: /
 User-agent: *
 Allow: /
 
-Sitemap: https://nu-porikroma.vercel.app/sitemap.xml
-
 # SEO directives
 Disallow: /api/
 Disallow: /_next/
 Disallow: /private/
 
+# Sitemap location
 Sitemap: https://nu-porikroma.vercel.app/sitemap.xml
-
-# SEO directives
-Disallow: /api/
-Disallow: /_next/
-Disallow: /private/
