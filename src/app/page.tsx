@@ -11,7 +11,6 @@ import { Download, RefreshCw, Clock, Eye, BookOpen, GraduationCap, FileText, Men
 import { toast } from 'sonner';
 import { ThemeToggle } from '@/components/theme-toggle';
 import AdBanner from '@/components/ads/AdBanner';
-import { AdSenseScript } from '@/components/ads/AdSense';
 
 
 interface Notice {
@@ -345,9 +344,6 @@ export default function Home() {
 
   return (
     <>
-      {/* AdSense Script */}
-      <AdSenseScript />
-      
       <Script
         id="structured-data-breadcrumbs"
         type="application/ld+json"

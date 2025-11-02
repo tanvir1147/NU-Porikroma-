@@ -4,6 +4,7 @@ import { Noto_Sans_Bengali } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "next-themes";
+import { AdSenseScript } from "@/components/ads/AdSense";
 
 export const viewport = {
   width: 'device-width',
@@ -129,6 +130,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
+          <AdSenseScript />
           {children}
           <Toaster />
         </ThemeProvider>
