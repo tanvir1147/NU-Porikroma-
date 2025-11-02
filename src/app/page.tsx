@@ -135,52 +135,23 @@ export default function Home() {
 
   const handleViewPDF = async (pdfUrl: string, title: string) => {
     try {
-      // Check if it's mobile device
-      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
+      // Direct PDF viewing - opens immediately without delay
+      const newWindow = window.open('', '_blank', 'noopener,noreferrer,width=1200,height=900');
       
-      if (isMobile) {
-        // On mobile, show options dialog
-        const userChoice = confirm(
-          `View "${title.substring(0, 50)}..."\n\n` +
-          "Choose:\n" +
-          "OK = Download PDF\n" +
-          "Cancel = Open in Browser"
-        );
-        
-        if (userChoice) {
-          // User chose to download
-          handleDownloadPDF(pdfUrl, title);
-        } else {
-          // User chose to open in browser
-          const tempLink = document.createElement('a');
-          tempLink.href = pdfUrl;
-          tempLink.target = '_blank';
-          tempLink.rel = 'noopener noreferrer';
-          document.body.appendChild(tempLink);
-          tempLink.click();
-          document.body.removeChild(tempLink);
-          toast.success('Opening PDF in browser');
-        }
+      if (newWindow) {
+        // Set the PDF URL directly for immediate viewing
+        newWindow.location.href = pdfUrl;
+        toast.success('PDF opened for viewing');
       } else {
-        // Desktop: Use PDF viewer API route for better compatibility
-        const viewerUrl = `/api/pdf/viewer?url=${encodeURIComponent(pdfUrl)}&title=${encodeURIComponent(title)}`;
-        
-        const newWindow = window.open('', '_blank', 'noopener,noreferrer,width=1200,height=800');
-        
-        if (newWindow) {
-          newWindow.location.href = viewerUrl;
-          toast.success('PDF viewer opened');
-        } else {
-          // Fallback if popup blocked
-          const tempLink = document.createElement('a');
-          tempLink.href = viewerUrl;
-          tempLink.target = '_blank';
-          tempLink.rel = 'noopener noreferrer';
-          document.body.appendChild(tempLink);
-          tempLink.click();
-          document.body.removeChild(tempLink);
-          toast.success('PDF viewer opened (allow popups for better experience)');
-        }
+        // Fallback if popup is blocked
+        const tempLink = document.createElement('a');
+        tempLink.href = pdfUrl;
+        tempLink.target = '_blank';
+        tempLink.rel = 'noopener noreferrer';
+        document.body.appendChild(tempLink);
+        tempLink.click();
+        document.body.removeChild(tempLink);
+        toast.success('PDF opened (allow popups for better experience)');
       }
     } catch (error) {
       console.error('Error opening PDF:', error);
@@ -192,38 +163,21 @@ export default function Home() {
     try {
       toast.info(`Downloading: ${title.substring(0, 30)}...`);
       
-      // Check if it's mobile
-      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      // Use download API for better compatibility on all devices
+      const downloadUrl = `/api/pdf/download?url=${encodeURIComponent(pdfUrl)}`;
+      const fileName = `${title.substring(0, 50).replace(/[^a-zA-Z0-9\u0980-\u09FF\s]/g, '') || 'NU_Notice'}.pdf`;
       
-      if (isMobile) {
-        // On mobile, direct link often works better
-        const tempLink = document.createElement('a');
-        tempLink.href = pdfUrl;
-        tempLink.target = '_blank';
-        tempLink.rel = 'noopener noreferrer';
-        tempLink.download = `${title.substring(0, 50).replace(/[^a-zA-Z0-9\u0980-\u09FF\s]/g, '') || 'NU_Notice'}.pdf`;
-        
-        document.body.appendChild(tempLink);
-        tempLink.click();
-        document.body.removeChild(tempLink);
-        
-        toast.success('Download started (check your downloads)');
-      } else {
-        // Desktop: Use download API for better compatibility
-        const downloadUrl = `/api/pdf/download?url=${encodeURIComponent(pdfUrl)}`;
-        
-        const a = document.createElement('a');
-        a.href = downloadUrl;
-        a.download = `${title.substring(0, 50).replace(/[^a-zA-Z0-9\u0980-\u09FF\s]/g, '') || 'NU_Notice'}.pdf`;
-        a.target = '_blank';
-        a.rel = 'noopener noreferrer';
-        
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        
-        toast.success('PDF download started');
-      }
+      // Create download link
+      const downloadLink = document.createElement('a');
+      downloadLink.href = downloadUrl;
+      downloadLink.download = fileName;
+      downloadLink.target = '_blank';
+      downloadLink.rel = 'noopener noreferrer';
+      
+      // Add to DOM, click, and remove
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
       
       toast.success('PDF download started');
     } catch (error) {
@@ -231,14 +185,17 @@ export default function Home() {
       
       // Fallback: direct link
       try {
-        const a = document.createElement('a');
-        a.href = pdfUrl;
-        a.target = '_blank';
-        a.rel = 'noopener noreferrer';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        toast.info('Opening PDF directly (fallback)');
+        const fallbackLink = document.createElement('a');
+        fallbackLink.href = pdfUrl;
+        fallbackLink.target = '_blank';
+        fallbackLink.rel = 'noopener noreferrer';
+        fallbackLink.download = `${title.substring(0, 50).replace(/[^a-zA-Z0-9\u0980-\u09FF\s]/g, '') || 'NU_Notice'}.pdf`;
+        
+        document.body.appendChild(fallbackLink);
+        fallbackLink.click();
+        document.body.removeChild(fallbackLink);
+        
+        toast.info('Download started (direct link)');
       } catch (fallbackError) {
         toast.error('Failed to download PDF');
       }

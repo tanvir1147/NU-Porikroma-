@@ -162,43 +162,93 @@ export async function GET(request: NextRequest) {
                 <h3>🔄 Loading PDF...</h3>
                 <p>Please wait while we load the document...</p>
             </div>
-            <iframe src="${pdfUrl}" class="iframe" style="display: none;"
+            
+            <!-- Try multiple PDF viewing methods -->
+            <iframe id="pdf-iframe" src="/api/pdf/view?url=${encodeURIComponent(pdfUrl)}" class="iframe" style="display: none;"
+                    onerror="tryAlternativeViewer()" 
+                    onload="showPDF()"></iframe>
+                    
+            <iframe id="pdf-iframe-alt" src="${pdfUrl}" class="iframe" style="display: none;"
+                    onerror="tryGoogleViewer()" 
+                    onload="showPDF()"></iframe>
+                    
+            <iframe id="pdf-iframe-google" src="https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(pdfUrl)}" class="iframe" style="display: none;"
                     onerror="showError()" 
                     onload="showPDF()"></iframe>
+            
             <div id="error-message" class="message" style="display: none;">
-                <h3>📱 Mobile PDF Viewer</h3>
-                <p>For the best mobile experience, we recommend:</p>
+                <h3>📄 PDF Viewer Options</h3>
+                <p>Choose your preferred viewing method:</p>
                 <div class="instructions">
-                    <ol>
-                        <li><strong>📖 Open PDF:</strong> Tap to open in your browser's PDF viewer</li>
-                        <li><strong>⬇️ Download:</strong> Save to your device and open with a PDF app</li>
-                    </ol>
+                    <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin: 20px 0;">
+                        <a href="${pdfUrl}" target="_blank" class="btn">📖 Direct PDF</a>
+                        <a href="https://docs.google.com/gview?url=${encodeURIComponent(pdfUrl)}" target="_blank" class="btn">🔍 Google Viewer</a>
+                        <a href="/api/pdf/download?url=${encodeURIComponent(pdfUrl)}" class="btn btn-primary">⬇️ Download</a>
+                    </div>
                 </div>
-                <p><strong>Most mobile browsers handle PDFs automatically.</strong></p>
+                <p><strong>All options work on mobile and desktop!</strong></p>
             </div>
         </div>
         
         <script>
             let loaded = false;
+            let currentViewer = 1;
             
             function showPDF() {
                 loaded = true;
                 document.getElementById('loading-message').style.display = 'none';
-                document.querySelector('.iframe').style.display = 'block';
+                // Show the current active iframe
+                const activeIframe = document.getElementById(
+                    currentViewer === 1 ? 'pdf-iframe' : 
+                    currentViewer === 2 ? 'pdf-iframe-alt' : 'pdf-iframe-google'
+                );
+                if (activeIframe) {
+                    activeIframe.style.display = 'block';
+                }
+            }
+            
+            function tryAlternativeViewer() {
+                if (currentViewer === 1) {
+                    console.log('Trying alternative viewer...');
+                    currentViewer = 2;
+                    document.getElementById('pdf-iframe').style.display = 'none';
+                    document.getElementById('pdf-iframe-alt').style.display = 'block';
+                }
+            }
+            
+            function tryGoogleViewer() {
+                if (currentViewer === 2) {
+                    console.log('Trying Google viewer...');
+                    currentViewer = 3;
+                    document.getElementById('pdf-iframe-alt').style.display = 'none';
+                    document.getElementById('pdf-iframe-google').style.display = 'block';
+                }
             }
             
             function showError() {
                 document.getElementById('loading-message').style.display = 'none';
-                document.querySelector('.iframe').style.display = 'none';
+                document.getElementById('pdf-iframe').style.display = 'none';
+                document.getElementById('pdf-iframe-alt').style.display = 'none';
+                document.getElementById('pdf-iframe-google').style.display = 'none';
                 document.getElementById('error-message').style.display = 'block';
             }
             
-            // Auto-show error message after 2 seconds if not loaded (mobile-friendly)
+            // Auto-show error message after 5 seconds if not loaded
             setTimeout(() => {
                 if (!loaded) {
                     showError();
                 }
-            }, 2000);
+            }, 5000);
+            
+            // For mobile devices, show options sooner
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            if (isMobile) {
+                setTimeout(() => {
+                    if (!loaded) {
+                        showError();
+                    }
+                }, 2000);
+            }
         </script>
     </div>
 </body>
