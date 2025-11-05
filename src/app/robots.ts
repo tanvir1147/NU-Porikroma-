@@ -1,4 +1,4 @@
-import { MetadataRoute } from 'next';
+import { MetadataRoute } from 'next'
 
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -6,25 +6,19 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: 'Googlebot',
         allow: '/',
+        disallow: ['/api/', '/_next/', '/private/'],
       },
       {
         userAgent: 'Bingbot',
         allow: '/',
-      },
-      {
-        userAgent: 'Twitterbot',
-        allow: '/',
-      },
-      {
-        userAgent: 'facebookexternalhit',
-        allow: '/',
+        disallow: ['/api/', '/_next/', '/private/'],
       },
       {
         userAgent: '*',
         allow: '/',
+        disallow: ['/api/', '/_next/', '/private/'],
       },
     ],
-    sitemap: 'https://nu-porikroma.vercel.app/sitemap.xml', // Update with your actual domain
-    host: 'https://nu-porikroma.vercel.app', // Update with your actual domain
-  };
+    sitemap: 'https://nu-porikroma.vercel.app/sitemap.xml',
+  }
 }
