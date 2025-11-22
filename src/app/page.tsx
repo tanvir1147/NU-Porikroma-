@@ -10,7 +10,6 @@ import { Pagination, PaginationContent, PaginationItem, PaginationLink, Paginati
 import { Download, RefreshCw, Clock, Eye, BookOpen, GraduationCap, FileText, Menu, X, Calendar } from 'lucide-react';
 import { toast } from 'sonner';
 import { ThemeToggle } from '@/components/theme-toggle';
-import AdBanner from '@/components/ads/AdBanner';
 
 
 interface Notice {
@@ -567,11 +566,6 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Top Ad Banner */}
-          <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 mb-8">
-            <AdBanner position="top" />
-          </div>
-
           {/* Notices Grid */}
           <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16">
             {loading ? (
@@ -704,13 +698,6 @@ export default function Home() {
                   </div>
                 )}
 
-                {/* Middle Ad Banner */}
-                {pagination.page >= 1 && filteredNotices.length > 5 && (
-                  <div className="mt-12 mb-8">
-                    <AdBanner position="middle" />
-                  </div>
-                )}
-
                 {/* Show More Button */}
                 {filteredNotices.length > pagination.page * pagination.limit && (
                   <div className="mt-8 flex justify-center">
@@ -804,11 +791,6 @@ export default function Home() {
             )}
           </div>
         </main>
-
-        {/* Bottom Ad Banner */}
-        <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 py-8">
-          <AdBanner position="bottom" />
-        </div>
 
         {/* Footer */}
         <footer className="relative z-10 bg-white/10 backdrop-blur-md border-t border-white/20">

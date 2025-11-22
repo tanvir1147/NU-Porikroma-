@@ -4,7 +4,7 @@ import { Noto_Sans_Bengali } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "next-themes";
-import { AdSenseScript } from "@/components/ads/AdSense";
+import Script from "next/script";
 
 export const viewport = {
   width: 'device-width',
@@ -130,7 +130,12 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <AdSenseScript />
+          {/* Adsterra Popup Ads */}
+          <Script
+            type="text/javascript"
+            src="//pl28113939.effectivegatecpm.com/e9/00/8b/e9008b2cfd3b90dab15bf35aae19acd1.js"
+            strategy="afterInteractive"
+          />
           {children}
           <Toaster />
         </ThemeProvider>
